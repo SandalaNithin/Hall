@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Shield } from 'lucide-react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import AdminLoginModal from './AdminLoginModal';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,28 +72,15 @@ export default function Header() {
                 {link.label}
               </NavLink>
             ))}
-            <button
-              onClick={() => setShowAdminLogin(true)}
-              className={`ml-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${isScrolled
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
+            <Link
+              to="/booking"
+              className={`ml-4 px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 shadow-lg ${isScrolled
+                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                : 'bg-white text-indigo-900 hover:bg-gray-100'
                 }`}
             >
-              <Shield size={16} />
-              Admin
-            </button>
-
-            {location.pathname !== '/admin' && (
-              <Link
-                to="/booking"
-                className={`ml-4 px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 shadow-lg ${isScrolled
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  : 'bg-white text-indigo-900 hover:bg-gray-100'
-                  }`}
-              >
-                Book Now
-              </Link>
-            )}
+              Book Now
+            </Link>
 
           </nav>
 
@@ -147,12 +131,7 @@ export default function Header() {
         )}
       </AnimatePresence>
 
-      {/* Admin Login Modal */}
-      <AdminLoginModal
-        isOpen={showAdminLogin}
-        onClose={() => setShowAdminLogin(false)}
-        onLoginSuccess={() => navigate("/admin")}
-      />
+
     </header>
   );
 }

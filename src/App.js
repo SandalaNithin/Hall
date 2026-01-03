@@ -7,7 +7,6 @@ import Home from "./pages/Home";
 import ContactPage from "./pages/Contact";
 import PrivacyPolicy from "./pages/Privacy";
 import BookingCalendar from "./components/BookingCalendar";
-import AdminDashboard from "./components/AdminDashboard";
 import { AnimatePresence } from "framer-motion";
 
 function AnimatedApp() {
@@ -24,7 +23,6 @@ function AnimatedApp() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/booking" element={<BookingCalendar />} />
-            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
           </Routes>
         </main>
