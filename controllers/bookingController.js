@@ -98,19 +98,19 @@ const createBooking = async (req, res) => {
     }
 };
 
-// @desc    Get all blocked dates (confirmed bookings)
+// @desc    Get all blocked dates (confirmed and pending bookings)
 // @route   GET /api/booking/blocked-dates
 // @access  Public
 const getBlockedDates = async (req, res) => {
     try {
-        // Fetch all confirmed bookings
-        const confirmedBookings = await Booking.find(
-            { status: "confirmed" },
+        // Fetch all confirmed AND pending bookings
+        const blockedBookings = await Booking.find(
+            { status: { $in: ["confirmed", "pending"] } },
             { fromDate: 1, toDate: 1, _id: 0 }
         ).sort({ fromDate: 1 });
 
         // Format dates as ISO strings for frontend
-        const blockedRanges = confirmedBookings.map(booking => ({
+        const blockedRanges = blockedBookings.map(booking => ({
             fromDate: booking.fromDate.toISOString().split('T')[0],
             toDate: booking.toDate.toISOString().split('T')[0],
         }));
@@ -172,9 +172,103 @@ const confirmBooking = async (req, res) => {
 
         console.log("✅ BOOKING CONFIRMED:", booking._id);
 
+        // Send confirmation email to user
+        const confirmationEmailContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Booking Confirmed!</h1>
+            </div>
+            
+            <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">Dear <strong>${booking.name}</strong>,</p>
+                
+                <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+                    Great news! Your booking request for <strong>Lakshmi Function Hall</strong> has been confirmed. We're excited to host your event!
+                </p>
+
+                <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; margin: 25px 0; border-radius: 5px;">
+                    <h2 style="color: #065f46; margin-top: 0; font-size: 20px;">📋 Booking Details</h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Event Type:</td>
+                            <td style="padding: 8px 0; color: #111827; font-weight: bold;">${booking.eventType}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">From Date:</td>
+                            <td style="padding: 8px 0; color: #111827; font-weight: bold;">${new Date(booking.fromDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">To Date:</td>
+                            <td style="padding: 8px 0; color: #111827; font-weight: bold;">${new Date(booking.toDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Check-In Time:</td>
+                            <td style="padding: 8px 0; color: #111827; font-weight: bold;">${booking.checkIn}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Check-Out Time:</td>
+                            <td style="padding: 8px 0; color: #111827; font-weight: bold;">${booking.checkOut}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Number of Guests:</td>
+                            <td style="padding: 8px 0; color: #111827; font-weight: bold;">${booking.guests}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #6b7280; font-weight: 600;">Contact Phone:</td>
+                            <td style="padding: 8px 0; color: #111827; font-weight: bold;">${booking.phone}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                ${booking.message ? `
+                <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 5px;">
+                    <p style="margin: 0; color: #92400e;"><strong>Your Message:</strong></p>
+                    <p style="margin: 10px 0 0 0; color: #78350f;">${booking.message}</p>
+                </div>
+                ` : ''}
+
+                <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 25px 0; border-radius: 5px;">
+                    <p style="margin: 0; color: #1e40af; font-size: 14px;">
+                        <strong>📞 Need to make changes?</strong><br>
+                        Please contact us at <strong>${booking.phone}</strong> or reply to this email.
+                    </p>
+                </div>
+
+                <p style="font-size: 16px; color: #374151; line-height: 1.6; margin-top: 25px;">
+                    We look forward to making your event memorable!
+                </p>
+
+                <p style="font-size: 16px; color: #374151; margin-top: 30px;">
+                    Best regards,<br>
+                    <strong style="color: #667eea; font-size: 18px;">Lakshmi Function Hall Team</strong>
+                </p>
+            </div>
+
+            <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
+                <p style="margin: 5px 0;">This is an automated confirmation email.</p>
+                <p style="margin: 5px 0;">© ${new Date().getFullYear()} Lakshmi Function Hall. All rights reserved.</p>
+            </div>
+        </div>
+        `;
+
+        try {
+            await sendEmail({
+                name: "Lakshmi Function Hall",
+                email: booking.email,
+                recipient: 'user', // Send to user
+                subject: "🎉 Your Booking is Confirmed - Lakshmi Function Hall",
+                html: confirmationEmailContent,
+            });
+            console.log("✅ CONFIRMATION EMAIL SENT TO:", booking.email);
+        } catch (emailError) {
+            console.error("❌ ERROR SENDING CONFIRMATION EMAIL:", emailError);
+            // Continue even if email fails - booking is still confirmed
+        }
+
         res.status(200).json({
             success: true,
-            message: "Booking confirmed successfully",
+            message: "Booking confirmed successfully and confirmation email sent to user",
             data: booking
         });
 
