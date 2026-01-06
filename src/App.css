@@ -1,0 +1,14 @@
+/* Base Tailwind styles are already in index.css */
+
+/* Custom components or specific overrides can go here if needed */
+
+.shadow-glow {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+/* Ensure smooth transitions for all layout-affecting properties */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
