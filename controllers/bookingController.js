@@ -252,6 +252,9 @@ const confirmBooking = async (req, res) => {
         </div>
         `;
 
+        let emailSent = false;
+        let emailError = null;
+
         try {
             await sendEmail({
                 name: "Lakshmi Function Hall",
@@ -261,14 +264,24 @@ const confirmBooking = async (req, res) => {
                 html: confirmationEmailContent,
             });
             console.log("✅ CONFIRMATION EMAIL SENT TO:", booking.email);
-        } catch (emailError) {
-            console.error("❌ ERROR SENDING CONFIRMATION EMAIL:", emailError);
+            emailSent = true;
+        } catch (error) {
+            console.error("❌ ERROR SENDING CONFIRMATION EMAIL:", error);
+            console.error("   Email Error Details:", {
+                message: error.message,
+                code: error.code,
+                command: error.command
+            });
+            emailError = error.message;
             // Continue even if email fails - booking is still confirmed
         }
 
         res.status(200).json({
             success: true,
-            message: "Booking confirmed successfully and confirmation email sent to user",
+            message: emailSent
+                ? "Booking confirmed successfully and confirmation email sent to user"
+                : `Booking confirmed successfully but email failed to send: ${emailError}`,
+            emailSent,
             data: booking
         });
 
@@ -338,6 +351,9 @@ const rejectBooking = async (req, res) => {
         </div>
       `;
 
+        let emailSent = false;
+        let emailError = null;
+
         try {
             await sendEmail({
                 name: "Lakshmi Function Hall",
@@ -347,14 +363,24 @@ const rejectBooking = async (req, res) => {
                 html: rejectionEmailContent,
             });
             console.log("✅ REJECTION EMAIL SENT TO:", booking.email);
-        } catch (emailError) {
-            console.error("❌ ERROR SENDING REJECTION EMAIL:", emailError);
+            emailSent = true;
+        } catch (error) {
+            console.error("❌ ERROR SENDING REJECTION EMAIL:", error);
+            console.error("   Email Error Details:", {
+                message: error.message,
+                code: error.code,
+                command: error.command
+            });
+            emailError = error.message;
             // Continue even if email fails
         }
 
         res.status(200).json({
             success: true,
-            message: "Booking rejected and user notified via email",
+            message: emailSent
+                ? "Booking rejected and user notified via email"
+                : `Booking rejected but email failed to send: ${emailError}`,
+            emailSent,
             data: booking
         });
 
