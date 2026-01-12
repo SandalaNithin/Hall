@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './App.css'
 import AdminDashboard from "./components/AdminDashboard";
 import LandingPage from "./components/LandingPage";
+import EnterEmail from "./pages/EnterEmail";
+import VerifyOTP from "./pages/VerifyOTP";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -48,6 +51,9 @@ function App() {
                         )
                     }
                 />
+                <Route path="/forgot-password" element={<EnterEmail />} />
+                <Route path="/verify-otp" element={<VerifyOTP />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route
                     path="/dashboard/*"
                     element={

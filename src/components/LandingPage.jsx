@@ -1,7 +1,15 @@
 import { ShieldCheck, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import AdminLoginModal from './AdminLoginModal';
 
 function LandingPage({ showLoginModal, setShowLoginModal, onLoginSuccess }) {
+    const navigate = useNavigate();
+
+    const handleForgotPassword = () => {
+        setShowLoginModal(false);
+        navigate('/forgot-password');
+    };
+
     return (
         <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black overflow-hidden relative">
             {/* Decorative background elements */}
@@ -47,6 +55,7 @@ function LandingPage({ showLoginModal, setShowLoginModal, onLoginSuccess }) {
                 isOpen={showLoginModal}
                 onClose={() => setShowLoginModal(false)}
                 onLoginSuccess={onLoginSuccess}
+                onForgotPassword={handleForgotPassword}
             />
         </div>
     );

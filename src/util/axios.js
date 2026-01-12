@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance with base configuration
 const API = axios.create({
-    baseURL: "http://localhost:5000",
+    baseURL: " http://localhost:5000",
     headers: {
         "Content-Type": "application/json"
     }, timeout: 10000
@@ -43,7 +43,7 @@ API.interceptors.response.use(
 );
 
 // Admin booking management APIs
-export const confirmBooking = (id) => API.patch(`/api/booking/${id}/confirm`);
+export const confirmBooking = (id) => API.patch(`/api/booking/${id}/confirm`, {});
 export const rejectBooking = (id, reason) => API.patch(`/api/booking/${id}/reject`, { reason });
 export const getAllBookings = (status) => API.get("/api/booking/all", { params: { status } });
 export const getPendingBookings = () => API.get("/api/booking/pending");
@@ -53,5 +53,10 @@ export const getBookingById = (id) => API.get(`/api/booking/${id}`);
 // Admin authentication APIs
 export const adminLogin = (credentials) => API.post("/api/admin/login", credentials);
 export const setupAdmin = () => API.post("/api/admin/setup");
+
+// Forgot password APIs
+export const requestPasswordReset = (email) => API.post("/api/admin/forgot-password", { email });
+export const verifyOTP = (email, otp) => API.post("/api/admin/verify-otp", { email, otp });
+export const resetPassword = (email, otp, newPassword) => API.post("/api/admin/reset-password", { email, otp, newPassword });
 
 export default API;

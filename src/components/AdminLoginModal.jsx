@@ -3,7 +3,7 @@ import { X, Lock, Mail, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { adminLogin } from "../util/axios";
 
-export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
+export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess, onForgotPassword }) {
     const [formData, setFormData] = useState({
         email: "",
         password: ""
@@ -69,7 +69,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleClose}
-                        className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[9998]"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-white-md z-[9998]"
                     />
 
                     {/* Modal Container */}
@@ -161,6 +161,16 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
                                         </div>
                                     </div>
 
+                                        <div className="mt-4 text-end">
+                                        <button
+                                            type="button"
+                                            onClick={onForgotPassword}
+                                            className="text-sm font-semibold text-slate-500 hover:text-primary-600 transition-colors"
+                                        >
+                                            Forgot Password?
+                                        </button>
+                                    </div>
+
                                     <button
                                         type="submit"
                                         disabled={loading}
@@ -175,6 +185,8 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
                                             </>
                                         )}
                                     </button>
+
+                                    
                                 </form>
 
                                 <div className="mt-8 flex items-center justify-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
