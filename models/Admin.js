@@ -16,6 +16,14 @@ const adminSchema = new mongoose.Schema({
         type: String,
         default: "admin"
     },
+    resetOTP: {
+        type: String,
+        default: null
+    },
+    resetOTPExpires: {
+        type: Date,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -39,7 +39,7 @@ const createBooking = async (req, res) => {
         });
 
         if (recentBooking) {
-            return res.status(429).json({
+            return res.status(400).json({
                 success: false,
                 message: "You can submit only once every 24 hours.",
             });
@@ -59,7 +59,7 @@ const createBooking = async (req, res) => {
         });
 
         if (overlappingBooking) {
-            return res.status(409).json({
+            return res.status(400).json({
                 success: false,
                 message: "These dates are already booked. Please choose different dates.",
             });
@@ -144,7 +144,7 @@ const confirmBooking = async (req, res) => {
         }
 
         if (booking.status !== "pending") {
-            return res.status(400).json({
+            return res.status(409).json({
                 success: false,
                 message: `Cannot confirm booking with status: ${booking.status}`
             });
@@ -231,7 +231,7 @@ const confirmBooking = async (req, res) => {
                 <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 25px 0; border-radius: 5px;">
                     <p style="margin: 0; color: #1e40af; font-size: 14px;">
                         <strong>📞 Need to make changes?</strong><br>
-                        Please contact us at <strong>${booking.phone}</strong> or reply to this email.
+                        Please contact us at <strong>9866701255</strong> or reply to this email.
                     </p>
                 </div>
 
@@ -345,7 +345,7 @@ const rejectBooking = async (req, res) => {
                 <p style="margin: 5px 0;"><strong>Phone:</strong> ${booking.phone}</p>
             </div>
 
-            <p>We apologize for any inconvenience. Please feel free to contact us at <strong>${booking.phone}</strong> to check availability for alternative dates or discuss other options.</p>
+            <p>We apologize for any inconvenience. Please feel free to contact us at <strong>9866701255</strong> to check availability for alternative dates or discuss other options.</p>
             
             <p style="margin-top: 30px;">Best regards,<br><strong>Lakshmi Function Hall Team</strong></p>
         </div>
