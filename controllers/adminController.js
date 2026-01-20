@@ -133,7 +133,15 @@ const forgotPassword = async (req, res) => {
         admin.resetOTPExpires = otpExpires;
         await admin.save();
 
-        // Send OTP via email
+        console.log("✅ OTP SAVED TO DATABASE FOR:", admin.email);
+
+        // Send response immediately to prevent timeout
+        res.status(200).json({
+            success: true,
+            message: "OTP sent to your email. Please check your inbox."
+        });
+
+        // Send OTP via email asynchronously (non-blocking)
         const sendEmail = require("../utils/emailService");
 
         const emailContent = `
@@ -172,19 +180,19 @@ const forgotPassword = async (req, res) => {
         </div>
         `;
 
-        await sendEmail({
+        // Send email in background without blocking
+        sendEmail({
             name: "Lakshmi Function Hall",
             email: admin.email,
             recipient: 'user',
             subject: "🔐 Password Reset OTP - Lakshmi Function Hall",
             html: emailContent,
-        });
-
-        console.log("✅ OTP SENT TO:", admin.email);
-
-        res.status(200).json({
-            success: true,
-            message: "OTP sent to your email. Please check your inbox."
+        }).then(() => {
+            console.log("✅ OTP EMAIL SENT TO:", admin.email);
+        }).catch((error) => {
+            console.error("❌ EMAIL SENDING FAILED FOR:", admin.email, error.message);
+            // Email failed but user already got success response
+            // OTP is still valid in database
         });
 
     } catch (error) {
