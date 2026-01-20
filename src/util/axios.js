@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://hall-1-6ub7.onrender.com",
 });
 
 // Public booking APIs
