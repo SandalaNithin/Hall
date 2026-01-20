@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance with base configuration
 const API = axios.create({
-    baseURL: " http://localhost:5000",
+    baseURL: " https://hall-1-6ub7.onrender.com",
     headers: {
         "Content-Type": "application/json"
     }, timeout: 10000
