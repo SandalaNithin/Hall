@@ -1,5 +1,5 @@
 const Booking = require("../models/Booking");
-const sendEmail = require("../utils/emailService");
+const sendEmail = require("../utils/sendgridService");
 const bookingSchema = require("../validations/bookingSchema");
 const fs = require("fs");
 
