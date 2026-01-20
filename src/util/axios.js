@@ -8,6 +8,14 @@ const API = axios.create({
     }, timeout: 10000
 });
 
+const APIForLogin = axios.create({
+    baseURL: "https://hall-1-6ub7.onrender.com",
+    headers: {
+        "Content-Type": "application/json"
+    }, timeout: 10000
+});
+
+
 // Request interceptor for adding auth tokens if needed
 API.interceptors.request.use(
     (config) => {
@@ -30,17 +38,17 @@ API.interceptors.request.use(
 );
 
 // Response interceptor for handling errors
-API.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            // Unauthorized - clear auth and redirect
-            localStorage.removeItem("adminAuth");
-            window.location.href = "/booking";
-        }
-        return Promise.reject(error);
-    }
-);
+// API.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         if (error.response?.status === 401) {
+//             // Unauthorized - clear auth and redirect
+//             localStorage.removeItem("adminAuth");
+//             window.location.href = "/booking";
+//         }
+//         return Promise.reject(error);
+//     }
+// );
 
 // Admin booking management APIs
 export const confirmBooking = (id) => API.patch(`/api/booking/${id}/confirm`, {});
@@ -51,7 +59,7 @@ export const getConfirmedBookings = () => API.get("/api/booking/all", { params: 
 export const getBookingById = (id) => API.get(`/api/booking/${id}`);
 
 // Admin authentication APIs
-export const adminLogin = (credentials) => API.post("/api/admin/login", credentials);
+export const adminLogin = (credentials) => APIForLogin.post("/api/admin/login", credentials);
 export const setupAdmin = () => API.post("/api/admin/setup");
 
 // Forgot password APIs
