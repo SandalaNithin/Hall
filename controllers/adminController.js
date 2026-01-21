@@ -142,7 +142,7 @@ const forgotPassword = async (req, res) => {
         });
 
         // Send OTP via email asynchronously (non-blocking)
-        const sendEmail = require("../utils/emailService");
+        const sendEmail = require("../utils/sendgridService");
 
         const emailContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
