@@ -1,86 +1,95 @@
-const sgMail = require("@sendgrid/mail");
-require("dotenv").config();
+// Test SendGrid API directly
+require('dotenv').config();
+const sgMail = require('@sendgrid/mail');
 
-// Initialize SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+console.log("\n🔍 ========== SENDGRID DIAGNOSTIC TEST ==========\n");
 
-async function testSendGridEmail() {
-    console.log("🧪 Testing SendGrid Email Delivery...\n");
+// Step 1: Check environment variables
+console.log("Step 1: Checking Environment Variables...");
+console.log("SENDGRID_API_KEY exists:", !!process.env.SENDGRID_API_KEY);
+console.log("SENDGRID_API_KEY starts with 'SG.':", process.env.SENDGRID_API_KEY?.startsWith('SG.'));
+console.log("SENDGRID_API_KEY length:", process.env.SENDGRID_API_KEY?.length);
+console.log("SENDGRID_FROM_EMAIL:", process.env.SENDGRID_FROM_EMAIL);
+console.log("SENDGRID_FROM_NAME:", process.env.SENDGRID_FROM_NAME);
+console.log("ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
 
-    console.log("📋 Configuration:");
-    console.log("   API Key:", process.env.SENDGRID_API_KEY ? `${process.env.SENDGRID_API_KEY.substring(0, 10)}...` : "❌ NOT SET");
-    console.log("   From Email:", process.env.SENDGRID_FROM_EMAIL || "❌ NOT SET");
-    console.log("   From Name:", process.env.SENDGRID_FROM_NAME || "❌ NOT SET");
-    console.log("   Admin Email:", process.env.ADMIN_EMAIL || "❌ NOT SET");
-    console.log("");
-
-    const message = {
-        to: process.env.ADMIN_EMAIL,
-        from: {
-            email: process.env.SENDGRID_FROM_EMAIL,
-            name: process.env.SENDGRID_FROM_NAME || "Lakshmi Function Hall"
-        },
-        subject: "🧪 SendGrid Test Email - Lakshmi Function Hall",
-        html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px;">
-                <h1 style="color: white; margin: 0;">🧪 Test Email</h1>
-            </div>
-            <div style="background-color: white; padding: 30px; margin-top: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <p style="font-size: 16px; color: #374151;">This is a test email from SendGrid.</p>
-                <p style="font-size: 16px; color: #374151;">If you received this, your SendGrid configuration is working correctly!</p>
-                <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 5px;">
-                    <p style="color: #065f46; margin: 0; font-size: 14px;">
-                        ✅ <strong>Success!</strong> SendGrid is properly configured and delivering emails.
-                    </p>
-                </div>
-                <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
-                    Sent at: ${new Date().toLocaleString()}<br>
-                    <strong>Lakshmi Function Hall</strong>
-                </p>
-            </div>
-        </div>
-        `,
-    };
-
-    try {
-        console.log("📧 Sending test email...");
-        const response = await sgMail.send(message);
-
-        console.log("\n✅ Email sent successfully!");
-        console.log("   Status Code:", response[0].statusCode);
-        console.log("   Message ID:", response[0].headers['x-message-id']);
-        console.log("\n⚠️  IMPORTANT NOTES:");
-        console.log("   1. Status 202 means SendGrid ACCEPTED the email");
-        console.log("   2. This does NOT guarantee delivery to inbox");
-        console.log("   3. Check your email inbox (including spam folder)");
-        console.log("   4. If email doesn't arrive, verify sender in SendGrid:");
-        console.log("      → Go to: https://app.sendgrid.com/settings/sender_auth");
-        console.log("      → Verify your sender email:", process.env.SENDGRID_FROM_EMAIL);
-        console.log("\n📬 Check your inbox at:", process.env.ADMIN_EMAIL);
-
-    } catch (error) {
-        console.error("\n❌ Email sending failed!");
-        console.error("   Error:", error.message);
-
-        if (error.response) {
-            console.error("   Status Code:", error.response.statusCode);
-            console.error("   Body:", JSON.stringify(error.response.body, null, 2));
-
-            // Specific error handling
-            if (error.response.statusCode === 403) {
-                console.error("\n⚠️  ERROR 403: SENDER NOT VERIFIED");
-                console.error("   → Your sender email is NOT verified in SendGrid");
-                console.error("   → Go to: https://app.sendgrid.com/settings/sender_auth");
-                console.error("   → Add and verify:", process.env.SENDGRID_FROM_EMAIL);
-            } else if (error.response.statusCode === 401) {
-                console.error("\n⚠️  ERROR 401: INVALID API KEY");
-                console.error("   → Your SendGrid API key is invalid or expired");
-                console.error("   → Generate new key at: https://app.sendgrid.com/settings/api_keys");
-            }
-        }
-    }
+// Step 2: Initialize SendGrid
+console.log("\nStep 2: Initializing SendGrid...");
+try {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    console.log("✅ SendGrid initialized");
+} catch (error) {
+    console.error("❌ Failed to initialize SendGrid:", error.message);
+    process.exit(1);
 }
 
-// Run the test
-testSendGridEmail();
+// Step 3: Test sending email
+console.log("\nStep 3: Attempting to send test email...");
+const testEmail = {
+    to: process.env.SENDGRID_FROM_EMAIL, // Send to yourself for testing
+    from: {
+        email: process.env.SENDGRID_FROM_EMAIL,
+        name: process.env.SENDGRID_FROM_NAME || 'Lakshmi Function Hall'
+    },
+    subject: '🧪 SendGrid Test Email - ' + new Date().toISOString(),
+    html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>✅ SendGrid Test Successful!</h2>
+            <p>This is a test email from your Lakshmi Function Hall backend.</p>
+            <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+            <p>If you received this email, SendGrid is working correctly!</p>
+        </div>
+    `
+};
+
+console.log("Sending to:", testEmail.to);
+console.log("From:", testEmail.from.email);
+console.log("Subject:", testEmail.subject);
+
+sgMail.send(testEmail)
+    .then((response) => {
+        console.log("\n✅ ========== EMAIL SENT SUCCESSFULLY! ==========");
+        console.log("Status Code:", response[0].statusCode);
+        console.log("Message ID:", response[0].headers['x-message-id']);
+        console.log("\n📧 Check your inbox:", testEmail.to);
+        console.log("Subject:", testEmail.subject);
+        console.log("\nIf you don't see it, check your spam folder!");
+        console.log("================================================\n");
+        process.exit(0);
+    })
+    .catch((error) => {
+        console.error("\n❌ ========== EMAIL SENDING FAILED! ==========");
+        console.error("Error Code:", error.code);
+        console.error("Error Message:", error.message);
+
+        if (error.response) {
+            console.error("\nSendGrid Response:");
+            console.error("Status Code:", error.response.statusCode);
+            console.error("Body:", JSON.stringify(error.response.body, null, 2));
+
+            // Specific error diagnosis
+            if (error.response.statusCode === 401) {
+                console.error("\n🔑 PROBLEM: Invalid API Key");
+                console.error("SOLUTION:");
+                console.error("1. Go to https://app.sendgrid.com/settings/api_keys");
+                console.error("2. Create a new API key with 'Mail Send' permission");
+                console.error("3. Copy the key and update SENDGRID_API_KEY in .env");
+                console.error("4. Restart this test");
+            } else if (error.response.statusCode === 403) {
+                console.error("\n🚫 PROBLEM: Sender Not Verified or Permission Denied");
+                console.error("SOLUTION:");
+                console.error("1. Go to https://app.sendgrid.com/settings/sender_auth");
+                console.error("2. Click 'Verify a Single Sender'");
+                console.error("3. Add and verify:", process.env.SENDGRID_FROM_EMAIL);
+                console.error("4. Check your email for verification link");
+                console.error("5. Wait a few minutes after verification");
+                console.error("6. Run this test again");
+            } else if (error.response.statusCode === 400) {
+                console.error("\n📝 PROBLEM: Bad Request");
+                console.error("Check that your sender email is verified in SendGrid");
+            }
+        }
+
+        console.error("\n==============================================\n");
+        process.exit(1);
+    });

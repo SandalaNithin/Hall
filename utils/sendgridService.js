@@ -70,7 +70,7 @@ const sendEmail = async (options) => {
             throw new Error(`Invalid recipient email: ${recipientEmail}`);
         }
 
-        // Prepare email message
+        // Prepare email message with all required fields for deliverability
         const message = {
             to: recipientEmail,
             from: {
@@ -79,11 +79,37 @@ const sendEmail = async (options) => {
             },
             subject: options.subject,
             html: options.html,
+            // Add text version for email clients that need it (prevents spam)
+            text: options.text || options.html.replace(/<[^>]*>/g, '').trim(),
+            // Enable tracking for deliverability
+            trackingSettings: {
+                clickTracking: {
+                    enable: true,
+                    enableText: false
+                },
+                openTracking: {
+                    enable: true
+                },
+                subscriptionTracking: {
+                    enable: false
+                },
+                ganalytics: {
+                    enable: false
+                }
+            },
+            // Add headers for better deliverability
+            headers: {
+                'X-Priority': '3',
+                'X-Mailer': 'Lakshmi Function Hall Booking System'
+            }
         };
 
-        // Only add replyTo if a valid email is provided
+        // Add proper reply-to for better inbox placement
         if (options.email && options.email.includes('@')) {
-            message.replyTo = options.email;
+            message.replyTo = {
+                email: options.email,
+                name: options.name || 'Customer'
+            };
         }
 
         console.log("   Sending...");

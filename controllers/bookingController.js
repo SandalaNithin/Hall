@@ -257,11 +257,12 @@ const confirmBooking = async (req, res) => {
 
         try {
             await sendEmail({
-                name: "Lakshmi Function Hall",
+                name: booking.name,
                 email: booking.email,
                 recipient: 'user', // Send to user
                 subject: "🎉 Your Booking is Confirmed - Lakshmi Function Hall",
                 html: confirmationEmailContent,
+                text: `Booking Confirmation - Your booking at Lakshmi Function Hall has been confirmed. Event: ${booking.eventType}, From: ${booking.fromDate}, To: ${booking.toDate}. Please check your email for details.`
             });
             console.log("✅ CONFIRMATION EMAIL SENT TO:", booking.email);
             emailSent = true;
@@ -356,11 +357,12 @@ const rejectBooking = async (req, res) => {
 
         try {
             await sendEmail({
-                name: "Lakshmi Function Hall",
+                name: booking.name,
                 email: booking.email,
                 recipient: 'user', // Send to user, not owner
                 subject: "Booking Request - Unable to Confirm",
                 html: rejectionEmailContent,
+                text: `Your booking request for ${booking.eventType} from ${booking.fromDate} to ${booking.toDate} could not be confirmed. Please contact us at 9866701255 for more information.`
             });
             console.log("✅ REJECTION EMAIL SENT TO:", booking.email);
             emailSent = true;
