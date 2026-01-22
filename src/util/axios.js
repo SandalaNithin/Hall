@@ -1,18 +1,30 @@
 import axios from "axios";
 
+// Determine the base URL based on environment
+const getBaseURL = () => {
+    // If running in production (deployed), use the Render backend URL
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        return 'https://hall-1-6ub7.onrender.com'; // Replace with your actual Render backend URL
+    }
+    // For local development
+    return 'https://hall-1-6ub7.onrender.com';
+};
+
 // Create axios instance with base configuration
 const API = axios.create({
-    baseURL: " https://hall-1-6ub7.onrender.com",
+    baseURL: getBaseURL(),
     headers: {
         "Content-Type": "application/json"
-    }, timeout: 10000
+    },
+    timeout: 30000  // Increased to 30 seconds for password reset operations
 });
 
 const APIForLogin = axios.create({
-    baseURL: "https://hall-1-6ub7.onrender.com",
+    baseURL: getBaseURL(),
     headers: {
         "Content-Type": "application/json"
-    }, timeout: 10000
+    },
+    timeout: 30000  // Increased to 30 seconds
 });
 
 
