@@ -131,68 +131,109 @@ const forgotPassword = async (req, res) => {
         // Save OTP to database
         admin.resetOTP = otp;
         admin.resetOTPExpires = otpExpires;
-        await admin.save();
 
-        console.log("✅ OTP SAVED TO DATABASE FOR:", admin.email);
+        // Explicitly mark fields as modified for Mongoose 9.x
+        admin.markModified('resetOTP');
+        admin.markModified('resetOTPExpires');
+
+        // Save with validation
+        const savedAdmin = await admin.save({ validateBeforeSave: true });
+
+        // ============================================
+        // PROMINENT OTP DISPLAY FOR TERMINAL
+        // ============================================
+        console.log("\n" + "=".repeat(60));
+        console.log("✅ OTP GENERATED AND SAVED TO DATABASE");
+        console.log("=".repeat(60));
+        console.log("📧 Email:", admin.email);
+        console.log("🔐 OTP CODE:", otp);
+        console.log("⏰ Expires At:", otpExpires.toLocaleString());
+        console.log("=".repeat(60) + "\n");
+
+        // Detailed verification logs
+        console.log("📊 Database Verification:");
+        console.log("   ✓ OTP in DB:", savedAdmin.resetOTP);
+        console.log("   ✓ Expiry in DB:", savedAdmin.resetOTPExpires);
+
+        // Verify save was successful
+        if (!savedAdmin.resetOTP || savedAdmin.resetOTP !== otp) {
+            console.error("\n" + "!".repeat(60));
+            console.error("❌ WARNING: OTP may not have been saved correctly!");
+            console.error("!".repeat(60));
+            console.error("   Expected:", otp);
+            console.error("   Got:", savedAdmin.resetOTP);
+            console.error("!".repeat(60) + "\n");
+        } else {
+            console.log("   ✅ OTP successfully verified in database\n");
+        }
 
         // Send response immediately to prevent timeout
         res.status(200).json({
             success: true,
-            message: "OTP sent to your email. Please check your inbox."
+            message: "OTP sent to your email. Please check your inbox.",
+            // Include OTP in response for development/testing (remove in production)
+            otp: otp,
+            otpExpires: otpExpires
         });
 
-        // Send OTP via email asynchronously (non-blocking)
-        const sendEmail = require("../utils/sendgridService");
+        // Send OTP via email asynchronously in background (non-blocking)
+        // Using setImmediate to ensure response is sent first
+        setImmediate(async () => {
+            try {
+                const sendEmail = require("../utils/sendgridService");
 
-        const emailContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">🔐 Password Reset Request</h1>
-            </div>
-            
-            <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">Hello Admin,</p>
-                
-                <p style="font-size: 16px; color: #374151; line-height: 1.6;">
-                    We received a request to reset your password for <strong>Lakshmi Function Hall Admin Panel</strong>.
-                </p>
+                const emailContent = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="color: white; margin: 0; font-size: 28px;">🔐 Password Reset Request</h1>
+                    </div>
+                    
+                    <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">Hello Admin,</p>
+                        
+                        <p style="font-size: 16px; color: #374151; line-height: 1.6;">
+                            We received a request to reset your password for <strong>Lakshmi Function Hall Admin Panel</strong>.
+                        </p>
 
-                <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; margin: 25px 0; border-radius: 5px; text-align: center;">
-                    <p style="color: #065f46; margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Your OTP Code:</p>
-                    <p style="font-size: 36px; font-weight: bold; color: #059669; margin: 10px 0; letter-spacing: 8px; font-family: 'Courier New', monospace;">${otp}</p>
-                    <p style="color: #dc2626; margin: 10px 0 0 0; font-size: 14px;">⏰ Valid for 10 minutes</p>
+                        <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; margin: 25px 0; border-radius: 5px; text-align: center;">
+                            <p style="color: #065f46; margin: 0 0 10px 0; font-size: 14px; font-weight: 600;">Your OTP Code:</p>
+                            <p style="font-size: 36px; font-weight: bold; color: #059669; margin: 10px 0; letter-spacing: 8px; font-family: 'Courier New', monospace;">${otp}</p>
+                            <p style="color: #dc2626; margin: 10px 0 0 0; font-size: 14px;">⏰ Valid for 10 minutes</p>
+                        </div>
+
+                        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 5px;">
+                            <p style="color: #991b1b; margin: 0; font-size: 14px;">
+                                <strong>⚠️ Security Notice:</strong><br>
+                                • Do not share this OTP with anyone<br>
+                                • If you didn't request this, please ignore this email<br>
+                                • Your password will remain unchanged
+                            </p>
+                        </div>
+
+                        <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+                            Best regards,<br>
+                            <strong>Lakshmi Function Hall Team</strong>
+                        </p>
+                    </div>
                 </div>
+                `;
 
-                <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0; border-radius: 5px;">
-                    <p style="color: #991b1b; margin: 0; font-size: 14px;">
-                        <strong>⚠️ Security Notice:</strong><br>
-                        • Do not share this OTP with anyone<br>
-                        • If you didn't request this, please ignore this email<br>
-                        • Your password will remain unchanged
-                    </p>
-                </div>
+                await sendEmail({
+                    name: "Lakshmi Function Hall",
+                    email: admin.email,
+                    recipient: 'user',
+                    subject: "🔐 Password Reset OTP - Lakshmi Function Hall",
+                    html: emailContent,
+                    text: `Password Reset OTP: ${otp}. Valid for 10 minutes. Do not share this code.`
+                });
 
-                <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
-                    Best regards,<br>
-                    <strong>Lakshmi Function Hall Team</strong>
-                </p>
-            </div>
-        </div>
-        `;
-
-        // Send email in background without blocking
-        sendEmail({
-            name: "Lakshmi Function Hall",
-            email: admin.email,
-            recipient: 'user',
-            subject: "🔐 Password Reset OTP - Lakshmi Function Hall",
-            html: emailContent,
-        }).then(() => {
-            console.log("✅ OTP EMAIL SENT TO:", admin.email);
-        }).catch((error) => {
-            console.error("❌ EMAIL SENDING FAILED FOR:", admin.email, error.message);
-            // Email failed but user already got success response
-            // OTP is still valid in database
+                console.log("✅ OTP EMAIL SENT TO:", admin.email);
+            } catch (emailError) {
+                console.error("❌ EMAIL SENDING FAILED FOR:", admin.email);
+                console.error("   Error:", emailError.message);
+                // Email failed but user already got success response
+                // OTP is still valid in database
+            }
         });
 
     } catch (error) {
@@ -330,12 +371,27 @@ const resetPassword = async (req, res) => {
         admin.password = newPassword;
 
         // Clear OTP fields
-        admin.resetOTP = null;
-        admin.resetOTPExpires = null;
+        admin.resetOTP = undefined;
+        admin.resetOTPExpires = undefined;
 
-        await admin.save();
+        // Explicitly mark fields as modified for Mongoose 9.x
+        admin.markModified('password');
+        admin.markModified('resetOTP');
+        admin.markModified('resetOTPExpires');
 
-        console.log("✅ PASSWORD RESET SUCCESSFUL FOR:", admin.email);
+        const savedAdmin = await admin.save({ validateBeforeSave: true });
+
+        // ============================================
+        // PROMINENT PASSWORD RESET DISPLAY
+        // ============================================
+        console.log("\n" + "=".repeat(60));
+        console.log("✅ PASSWORD RESET SUCCESSFUL");
+        console.log("=".repeat(60));
+        console.log("📧 Email:", admin.email);
+        console.log("🔑 New Password Set: " + newPassword.substring(0, 2) + "*".repeat(newPassword.length - 2));
+        console.log("🗑️  OTP Cleared:", !savedAdmin.resetOTP);
+        console.log("🗑️  OTP Expiry Cleared:", !savedAdmin.resetOTPExpires);
+        console.log("=".repeat(60) + "\n");
 
         res.status(200).json({
             success: true,
@@ -351,4 +407,48 @@ const resetPassword = async (req, res) => {
     }
 };
 
-module.exports = { adminLogin, setupAdmin, forgotPassword, verifyOTP, resetPassword };
+// @desc    Debug: Check if OTP is stored in database
+// @route   POST /api/admin/debug-check-otp
+// @access  Public (remove in production)
+const debugCheckOTP = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required"
+            });
+        }
+
+        const admin = await Admin.findOne({ email: email.toLowerCase() });
+
+        if (!admin) {
+            return res.status(404).json({
+                success: false,
+                message: "Admin not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Admin OTP Debug Info",
+            data: {
+                email: admin.email,
+                hasOTP: !!admin.resetOTP,
+                otpValue: admin.resetOTP || "NO OTP SET",
+                otpExpires: admin.resetOTPExpires || "NO EXPIRY SET",
+                isOTPExpired: admin.resetOTPExpires ? new Date() > admin.resetOTPExpires : "N/A"
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ DEBUG CHECK OTP ERROR:", error);
+        res.status(500).json({
+            success: false,
+            message: "Debug check failed"
+        });
+    }
+};
+
+module.exports = { adminLogin, setupAdmin, forgotPassword, verifyOTP, resetPassword, debugCheckOTP };

@@ -17,17 +17,14 @@ const adminSchema = new mongoose.Schema({
         default: "admin"
     },
     resetOTP: {
-        type: String,
-        default: null
+        type: String
     },
     resetOTPExpires: {
-        type: Date,
-        default: null
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
+        type: Date
     }
+}, {
+    timestamps: true,  // Automatically adds createdAt and updatedAt
+    strict: true       // Ensure only schema fields are saved
 });
 
 module.exports = mongoose.model("Admin", adminSchema);
