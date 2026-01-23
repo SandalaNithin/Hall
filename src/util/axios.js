@@ -4,10 +4,10 @@ import axios from "axios";
 const getBaseURL = () => {
     // If running in production (deployed), use the Render backend URL
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        return 'https://hall-1-6ub7.onrender.com'; // Replace with your actual Render backend URL
+        return 'https://hall-3-0.onrender.com'; // Replace with your actual Render backend URL
     }
     // For local development
-    return 'https://hall-1-6ub7.onrender.com';
+    return 'https://hall-3-0.onrender.com';
 };
 
 // Create axios instance with base configuration
