@@ -49,18 +49,7 @@ API.interceptors.request.use(
     }
 );
 
-// Response interceptor for handling errors
-// API.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//         if (error.response?.status === 401) {
-//             // Unauthorized - clear auth and redirect
-//             localStorage.removeItem("adminAuth");
-//             window.location.href = "/booking";
-//         }
-//         return Promise.reject(error);
-//     }
-// );
+
 
 // Admin booking management APIs
 export const confirmBooking = (id) => API.patch(`/api/booking/${id}/confirm`, {});
