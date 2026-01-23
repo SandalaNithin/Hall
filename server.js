@@ -14,7 +14,7 @@ connectDB();
 // Middleware
 app.use(cors({
   origin: [
-    "https://hall-3-0.onrender.com",
+    "https://hall-2-0.onrender.com",
     "http://localhost:3000",
     "http://localhost:5173",
     "http://localhost:5000"
