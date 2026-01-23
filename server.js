@@ -12,7 +12,17 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://hall-3-0.onrender.com",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:5000"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 app.use(require("morgan")("dev")); // Logs requests to the console
 
