@@ -14,12 +14,13 @@ connectDB();
 // Middleware
 app.use(cors({
   origin: [
-    "https://hall-2-0.onrender.com",
+    "https://hall-1-0.onrender.com",  // Admin panel
+    "https://hall-2-0.onrender.com",  // Main frontend
     "http://localhost:3000",
     "http://localhost:5173",
     "http://localhost:5000"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"]
 }));

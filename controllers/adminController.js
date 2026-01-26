@@ -170,10 +170,7 @@ const forgotPassword = async (req, res) => {
         // Send response immediately to prevent timeout
         res.status(200).json({
             success: true,
-            message: "OTP sent to your email. Please check your inbox.",
-            // Include OTP in response for development/testing (remove in production)
-            otp: otp,
-            otpExpires: otpExpires
+            message: "OTP sent to your email. Please check your inbox."
         });
 
         // Send OTP via email asynchronously in background (non-blocking)
