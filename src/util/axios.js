@@ -2,12 +2,23 @@ import axios from "axios";
 
 // Determine the base URL based on environment
 const getBaseURL = () => {
+    // Check if environment variable is set (for Vite: import.meta.env.VITE_API_URL)
+    // For Create React App: process.env.REACT_APP_API_URL
+    const envApiUrl = import.meta.env?.VITE_API_URL || process.env.REACT_APP_API_URL;
+
+    if (envApiUrl) {
+        return envApiUrl;
+    }
+
     // If running in production (deployed), use the Render backend URL
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        return 'https://hall-3-0.onrender.com'; // Replace with your actual Render backend URL
+        // IMPORTANT: Replace this with your actual backend URL on Render
+        // Based on your server.js, this should be the URL where your backend is deployed
+        return 'https://hall-3-0.onrender.com';
     }
-    // For local development
-    return 'https://hall-3-0.onrender.com';
+
+    // For local development, connect to local backend
+    return 'http://localhost:5000';
 };
 
 // Create axios instance with base configuration
